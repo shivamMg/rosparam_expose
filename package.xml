@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>rosparam_expose</name>
+  <version>0.0.0</version>
+  <description>Exposes ROS1 Parameter Server operations as ROS Services</description>
+
+  <maintainer email="shivamMg@users.noreply.github.com">Shivam Mamgain</maintainer>
+  <author email="shivamMg@users.noreply.github.com">Shivam Mamgain</author>
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>message_generation</build_depend>
+
+  <exec_depend>message_runtime</exec_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>python-yaml</exec_depend>
+  <exec_depend>python-click</exec_depend>
+  <!-- TODO: python3 compatibility
+      <exec_depend condition="$ROS_PYTHON_VERSION == 3">python3-yaml</exec_depend>
+  -->
+</package>

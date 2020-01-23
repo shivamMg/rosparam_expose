@@ -1,0 +1,3 @@
+<launch>
+  <node name="rosparam_expose" pkg="rosparam_expose" type="server" output="screen"/>
+</launch>
