@@ -1,8 +1,10 @@
 #!/usr/bin/env python
+import sys
+
 import click
 import rospy
 
-from rosparam_expose.srv import Set, Get, Load, Dump
+from rosparam_expose.srv import Set, Get, Load, Dump, Delete, List
 
 NODE_NAME = 'rosparam_expose_client'
 SRV_NS = '/rosparam_expose'
@@ -25,6 +27,7 @@ def set_param(name, value, timeout):
         srv_proxy(name, value)
     except rospy.ServiceException, e:
         click.echo('Service call failed: {}'.format(e), err=True)
+        sys.exit(1)
 
 
 @click.command('get')
@@ -39,6 +42,7 @@ def get_param(name, timeout):
         click.echo(response.value)
     except rospy.ServiceException, e:
         click.echo('Service call failed: {}'.format(e), err=True)
+        sys.exit(1)
 
 
 @click.command('load')
@@ -55,25 +59,53 @@ def load_file(filepath, namespace, timeout):
         srv_proxy(value, namespace)
     except rospy.ServiceException, e:
         click.echo('Service call failed: {}'.format(e), err=True)
+        sys.exit(1)
 
 
 @click.command('dump')
 @click.argument('filepath')
 @click.option('--namespace', default='/', help='namespace to dump file from')
 @click.option('--timeout', default=5, help='number of seconds to wait for service')
-def load_file(filepath, namespace, timeout):
+def dump_file(filepath, namespace, timeout):
     srv = SRV_NS + '/dump'
     rospy.wait_for_service(srv, timeout=timeout)
-    value = None
     try:
         srv_proxy = rospy.ServiceProxy(srv, Dump)
         response = srv_proxy(namespace)
-        value = response.value
     except rospy.ServiceException, e:
         click.echo('Service call failed: {}'.format(e), err=True)
+        sys.exit(1)
     with open(filepath, 'w') as f:
-        # f.write(value)
-        click.echo(value)
+        f.write(response.value)
+
+
+@click.command('delete')
+@click.argument('name')
+@click.option('--timeout', default=5, help='number of seconds to wait for service')
+def delete_param(name, timeout):
+    srv = SRV_NS + '/delete'
+    rospy.wait_for_service(srv, timeout=timeout)
+    try:
+        srv_proxy = rospy.ServiceProxy(srv, Delete)
+        srv_proxy(name)
+    except rospy.ServiceException, e:
+        click.echo('Service call failed: {}'.format(e), err=True)
+        sys.exit(1)
+
+
+@click.command('list')
+@click.option('--namespace', default='/', help='namespace to list parameters from')
+@click.option('--timeout', default=5, help='number of seconds to wait for service')
+def list_params(namespace, timeout):
+    srv = SRV_NS + '/list'
+    rospy.wait_for_service(srv, timeout=timeout)
+    try:
+        srv_proxy = rospy.ServiceProxy(srv, List)
+        response = srv_proxy(namespace)
+    except rospy.ServiceException, e:
+        click.echo('Service call failed: {}'.format(e), err=True)
+        sys.exit(1)
+    click.echo(response.value)
 
 
 if __name__ == '__main__':
@@ -81,4 +113,7 @@ if __name__ == '__main__':
     client.add_command(set_param)
     client.add_command(get_param)
     client.add_command(load_file)
+    client.add_command(dump_file)
+    client.add_command(delete_param)
+    client.add_command(list_params)
     client()

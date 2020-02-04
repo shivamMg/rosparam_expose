@@ -60,6 +60,8 @@ add_service_files(
   Get.srv
   Load.srv
   Dump.srv
+  Delete.srv
+  List.srv
 )
 
 ## Generate actions in the 'action' folder

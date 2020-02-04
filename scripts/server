@@ -3,7 +3,7 @@ import rosparam
 import rospy
 import yaml
 
-from rosparam_expose.srv import Set, Get, Load, Dump
+from rosparam_expose.srv import Set, Get, Load, Dump, Delete, List
 
 NODE_NAME = 'rosparam_expose'
 SRV_NS = '/rosparam_expose'
@@ -41,10 +41,25 @@ def dump_handler(req):
     return [value]
 
 
+def delete_handler(req):
+    rospy.loginfo('delete_handler request: name:%s', req.name)
+    rosparam.delete_param(req.name)
+    return []
+
+
+def list_handler(req):
+    rospy.loginfo('list_handler request: namespace:%s', req.namespace)
+    value = '\n'.join(rosparam.list_params(req.namespace))
+    rospy.loginfo('list_handler response: value:%s', value)
+    return [value]
+
+
 if __name__ == '__main__':
     rospy.init_node(NODE_NAME)
     rospy.Service(SRV_NS + '/set', Set, set_handler)
     rospy.Service(SRV_NS + '/get', Get, get_handler)
     rospy.Service(SRV_NS + '/load', Load, load_handler)
     rospy.Service(SRV_NS + '/dump', Dump, dump_handler)
+    rospy.Service(SRV_NS + '/delete', Delete, delete_handler)
+    rospy.Service(SRV_NS + '/list', List, list_handler)
     rospy.spin()
