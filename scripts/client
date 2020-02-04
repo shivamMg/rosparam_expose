@@ -2,8 +2,9 @@
 import click
 import rospy
 
-from rosparam_expose.srv import Set, Get
+from rosparam_expose.srv import Set, Get, Load, Dump
 
+NODE_NAME = 'rosparam_expose_client'
 SRV_NS = '/rosparam_expose'
 
 
@@ -21,10 +22,9 @@ def set_param(name, value, timeout):
     rospy.wait_for_service(srv, timeout=timeout)
     try:
         srv_proxy = rospy.ServiceProxy(srv, Set)
-        response = srv_proxy(name, value)
-        click.echo(response)
+        srv_proxy(name, value)
     except rospy.ServiceException, e:
-        click.echo('Service all failed: {}'.format(e), err=True)
+        click.echo('Service call failed: {}'.format(e), err=True)
 
 
 @click.command('get')
@@ -38,10 +38,47 @@ def get_param(name, timeout):
         response = srv_proxy(name)
         click.echo(response.value)
     except rospy.ServiceException, e:
-        click.echo('Service all failed: {}'.format(e), err=True)
+        click.echo('Service call failed: {}'.format(e), err=True)
+
+
+@click.command('load')
+@click.argument('filepath')
+@click.option('--namespace', default='/', help='namespace to load file into')
+@click.option('--timeout', default=5, help='number of seconds to wait for service')
+def load_file(filepath, namespace, timeout):
+    with open(filepath, 'r') as f:
+        value = f.read()
+    srv = SRV_NS + '/load'
+    rospy.wait_for_service(srv, timeout=timeout)
+    try:
+        srv_proxy = rospy.ServiceProxy(srv, Load)
+        srv_proxy(value, namespace)
+    except rospy.ServiceException, e:
+        click.echo('Service call failed: {}'.format(e), err=True)
+
+
+@click.command('dump')
+@click.argument('filepath')
+@click.option('--namespace', default='/', help='namespace to dump file from')
+@click.option('--timeout', default=5, help='number of seconds to wait for service')
+def load_file(filepath, namespace, timeout):
+    srv = SRV_NS + '/dump'
+    rospy.wait_for_service(srv, timeout=timeout)
+    value = None
+    try:
+        srv_proxy = rospy.ServiceProxy(srv, Dump)
+        response = srv_proxy(namespace)
+        value = response.value
+    except rospy.ServiceException, e:
+        click.echo('Service call failed: {}'.format(e), err=True)
+    with open(filepath, 'w') as f:
+        # f.write(value)
+        click.echo(value)
 
 
 if __name__ == '__main__':
+    rospy.init_node(NODE_NAME, anonymous=True)
     client.add_command(set_param)
     client.add_command(get_param)
+    client.add_command(load_file)
     client()

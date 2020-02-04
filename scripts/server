@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+import rosparam
 import rospy
 import yaml
 
-from rosparam_expose.srv import Set, Get
+from rosparam_expose.srv import Set, Get, Load, Dump
 
 NODE_NAME = 'rosparam_expose'
 SRV_NS = '/rosparam_expose'
@@ -10,16 +11,33 @@ SRV_NS = '/rosparam_expose'
 
 def set_handler(req):
     rospy.loginfo('set_handler request: name:%s value:%s', req.name, req.value)
-    rospy.set_param(req.name, yaml.safe_load(req.value))
+    rosparam.set_param(req.name, req.value)
     return []
 
 
 def get_handler(req):
     rospy.loginfo('get_handler request: name:%s', req.name)
-    value = yaml.safe_dump(rospy.get_param(req.name))
+    params = rosparam.get_param(req.name)
+    value = yaml.safe_dump(params)
     if value.endswith('\n...\n'):
         value = value[:-5]
     rospy.loginfo('get_handler response: value:%s', value)
+    return [value]
+
+
+def load_handler(req):
+    rospy.loginfo('load_handler request: value:%s namespace:%s', req.value, req.namespace)
+    param_list = rosparam.load_str(req.value, '', default_namespace=req.namespace)
+    for params, ns in param_list:
+        rosparam.upload_params(ns, params)
+    return []
+
+
+def dump_handler(req):
+    rospy.loginfo('dump_handler request: namespace:%s', req.namespace)
+    params = rosparam.get_param(req.namespace)
+    value = yaml.dump(params)
+    rospy.loginfo('dump_handler response: value:%s', value)
     return [value]
 
 
@@ -27,4 +45,6 @@ if __name__ == '__main__':
     rospy.init_node(NODE_NAME)
     rospy.Service(SRV_NS + '/set', Set, set_handler)
     rospy.Service(SRV_NS + '/get', Get, get_handler)
+    rospy.Service(SRV_NS + '/load', Load, load_handler)
+    rospy.Service(SRV_NS + '/dump', Dump, dump_handler)
     rospy.spin()
