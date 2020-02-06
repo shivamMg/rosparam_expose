@@ -8,6 +8,7 @@ Exposes ROS1 Parameter Server operations as ROS Services
 mkdir -p catkin_ws/src
 cd catkin_ws
 git clone https://github.com/shivamMg/rosparam_expose src/rosparam_expose
+rosdep install --from-paths src/rosparam_expose
 catkin_make
 roslaunch rosparam_expose server.launch  # start server
 
