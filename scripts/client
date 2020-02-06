@@ -99,7 +99,7 @@ def delete_param(name, ros_args, timeout):
 
 
 @click.command('list')
-@click.option('--namespace', default='/', help='namespace to list parameters from')
+@click.argument('namespace', default='/', required=False)
 @click.argument('ros_args', nargs=-1)
 @click.option('--timeout', default=5, type=float, help='number of seconds to wait for service')
 def list_params(namespace, ros_args, timeout):

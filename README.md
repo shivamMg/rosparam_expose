@@ -1,6 +1,7 @@
 ## rosparam_expose
 
-Exposes ROS1 Parameter Server operations as ROS Services
+* Exposes ROS1 Parameter Server operations as ROS Services
+* Provides a `rosparam` like CLI that can call these ROS Services
 
 ### Build and Run
 
@@ -34,8 +35,32 @@ cat dump.yaml  # should have same contents as load.yaml
 cat $(rospack find rosparam_expose)/launch/example.launch
 ```
 
-### Try it on rapyuta.io
+### Run on rapyuta.io
+
+1. Import example package using:
 
 <a href="https://console.rapyuta.io/catalog?uo=1&link=https%3A%2F%2Fraw.githubusercontent.com%2FshivamMg%2Frosparam_expose%2Fmaster%2Fio_manifests%2Fclient-server-example.json">
   <img src="https://storage.googleapis.com/artifacts.rapyuta.io/images/import-package-button.svg?v0" width="224" height="37" />
 </a>
+
+The package has a server and a client component. Server starts rosparam_expose server. Client
+component executable just sleeps infinitely. Both components have separate ROS masters but are
+connected via [Cloud Bridge](https://userdocs.rapyuta.io/developer-guide/manage-software-cycle/communication-topologies/ros-support/).
+So ROS services exposed at Server component should be available at Client component.
+
+2. After the imported package is successfully built, deploy it.
+3. Let the deployment go to `Status: Running` then go to `Shell Access` tab.
+4. SSH into client and run the following commands:
+```
+bash
+. /opt/catkin_ws/devel/setup.bash
+rosservice list  # you should see /rosparam_expose services
+cat $(rospack find rosparam_expose)/configs/example.yaml  # example yaml that we'll load at server
+rosrun rosparam_expose client load $(rospack find rosparam_expose)/configs/example.yaml /configs
+```
+5. Now go back to `Shell Access` tab, and SSH into server and run the following commands:
+```
+bash
+. /opt/catkin_ws/devel/setup.bash
+rosparam get /configs  # should be same as example.yaml from above
+```
