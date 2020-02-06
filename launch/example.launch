@@ -1,0 +1,26 @@
+<launch>
+  <!--
+    <rosparam command="load" file="$(find rosparam_expose)/configs/example.yaml" ns="/configs" />
+  -->
+  <node name="load_example" pkg="rosparam_expose" type="client"
+        args="load $(find rosparam_expose)/configs/example.yaml /configs" output="screen" />
+
+  <!--
+    <rosparam command="dump" file="example.yaml" ns="/configs" />
+  -->
+  <!-- can't save to CWD so giving absolute path /tmp/example.yaml -->
+  <node name="dump_example" pkg="rosparam_expose" type="client"
+        args="dump /tmp/example.yaml /configs" output="screen" />
+
+  <!--
+    <rosparam param="/configs/string">string-value</rosparam>
+  -->
+  <node name="set_example" pkg="rosparam_expose" type="client"
+        args="set /configs/string 'string-value'" output="screen" />
+
+  <!--
+    <rosparam command="delete" param="/configs/string" />
+  -->
+  <node name="delete_example" pkg="rosparam_expose" type="client"
+        args="delete /configs/string" output="screen" />
+</launch>

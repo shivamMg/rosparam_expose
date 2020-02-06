@@ -18,8 +18,9 @@ def client():
 @click.command('set')
 @click.argument('name')
 @click.argument('value')
-@click.option('--timeout', default=5, help='number of seconds to wait for service')
-def set_param(name, value, timeout):
+@click.argument('ros_args', nargs=-1)
+@click.option('--timeout', default=5, type=float, help='number of seconds to wait for service')
+def set_param(name, value, ros_args, timeout):
     srv = SRV_NS + '/set'
     rospy.wait_for_service(srv, timeout=timeout)
     try:
@@ -32,8 +33,9 @@ def set_param(name, value, timeout):
 
 @click.command('get')
 @click.argument('name')
-@click.option('--timeout', default=5, help='number of seconds to wait for service')
-def get_param(name, timeout):
+@click.argument('ros_args', nargs=-1)
+@click.option('--timeout', default=5, type=float, help='number of seconds to wait for service')
+def get_param(name, ros_args, timeout):
     srv = SRV_NS + '/get'
     rospy.wait_for_service(srv, timeout=timeout)
     try:
@@ -46,10 +48,11 @@ def get_param(name, timeout):
 
 
 @click.command('load')
-@click.argument('filepath')
-@click.option('--namespace', default='/', help='namespace to load file into')
-@click.option('--timeout', default=5, help='number of seconds to wait for service')
-def load_file(filepath, namespace, timeout):
+@click.argument('filepath', type=click.Path(exists=True))
+@click.argument('namespace', default='/', required=False)
+@click.argument('ros_args', nargs=-1)
+@click.option('--timeout', default=5, type=float, help='number of seconds to wait for service')
+def load_file(filepath, namespace, ros_args, timeout):
     with open(filepath, 'r') as f:
         value = f.read()
     srv = SRV_NS + '/load'
@@ -64,9 +67,10 @@ def load_file(filepath, namespace, timeout):
 
 @click.command('dump')
 @click.argument('filepath')
-@click.option('--namespace', default='/', help='namespace to dump file from')
-@click.option('--timeout', default=5, help='number of seconds to wait for service')
-def dump_file(filepath, namespace, timeout):
+@click.argument('namespace', default='/', required=False)
+@click.argument('ros_args', nargs=-1)
+@click.option('--timeout', default=5, type=float, help='number of seconds to wait for service')
+def dump_file(filepath, namespace, ros_args, timeout):
     srv = SRV_NS + '/dump'
     rospy.wait_for_service(srv, timeout=timeout)
     try:
@@ -81,8 +85,9 @@ def dump_file(filepath, namespace, timeout):
 
 @click.command('delete')
 @click.argument('name')
-@click.option('--timeout', default=5, help='number of seconds to wait for service')
-def delete_param(name, timeout):
+@click.argument('ros_args', nargs=-1)
+@click.option('--timeout', default=5, type=float, help='number of seconds to wait for service')
+def delete_param(name, ros_args, timeout):
     srv = SRV_NS + '/delete'
     rospy.wait_for_service(srv, timeout=timeout)
     try:
@@ -95,8 +100,9 @@ def delete_param(name, timeout):
 
 @click.command('list')
 @click.option('--namespace', default='/', help='namespace to list parameters from')
-@click.option('--timeout', default=5, help='number of seconds to wait for service')
-def list_params(namespace, timeout):
+@click.argument('ros_args', nargs=-1)
+@click.option('--timeout', default=5, type=float, help='number of seconds to wait for service')
+def list_params(namespace, ros_args, timeout):
     srv = SRV_NS + '/list'
     rospy.wait_for_service(srv, timeout=timeout)
     try:
