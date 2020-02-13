@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="pr2_arm" params="suffix parent reflect">
+    <pr2_upperarm suffix="${suffix}" reflect="${reflect}" parent="${parent}" />
+    <pr2_forearm suffix="${suffix}" reflect="${reflect}" parent="elbow_flex_${suffix}" />
+  </xacro:macro>
+
+  <xacro:pr2_arm suffix="left" reflect="1" parent="torso" />
+  <xacro:pr2_arm suffix="right" reflect="-1" parent="torso" />
+</robot>

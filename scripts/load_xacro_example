@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+  echo Need xacro filepath
+  exit 1
+fi
+
+if [ -z "$2" ]; then
+  echo Need namespace
+  exit 1
+fi
+
+rosrun xacro xacro "$1" | rosrun rosparam_expose client load - "$2"

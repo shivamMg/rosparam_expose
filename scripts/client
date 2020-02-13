@@ -48,13 +48,16 @@ def get_param(name, ros_args, timeout):
 
 
 @click.command('load')
-@click.argument('filepath', type=click.Path(exists=True))
+@click.argument('filepath')
 @click.argument('namespace', default='/', required=False)
 @click.argument('ros_args', nargs=-1)
 @click.option('--timeout', default=5, type=float, help='number of seconds to wait for service')
 def load_file(filepath, namespace, ros_args, timeout):
-    with open(filepath, 'r') as f:
-        value = f.read()
+    if filepath == '-':
+        value = sys.stdin.read()
+    else:
+        with open(filepath, 'r') as f:
+            value = f.read()
     srv = SRV_NS + '/load'
     rospy.wait_for_service(srv, timeout=timeout)
     try:

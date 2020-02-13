@@ -23,4 +23,11 @@
   -->
   <node name="delete_example" pkg="rosparam_expose" type="client"
         args="delete /configs/string" output="screen" />
+
+  <!--
+    <param name="/robot_description"
+           command="xacro '$(find rosparam_expose)/urdf/example.urdf.xacro'" />
+  -->
+  <node name="load_xacro_example" pkg="rosparam_expose" type="load_xacro_example"
+        args="$(find rosparam_expose)/urdf/example.urdf.xacro /robot_description" output="screen" />
 </launch>
