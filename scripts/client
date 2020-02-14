@@ -17,15 +17,26 @@ def client():
 
 @click.command('set')
 @click.argument('name')
-@click.argument('value')
+@click.argument('value', required=False)
 @click.argument('ros_args', nargs=-1)
+@click.option('--textfile', '-t', default='', help='text file to set parameters from')
 @click.option('--timeout', default=5, type=float, help='number of seconds to wait for service')
-def set_param(name, value, ros_args, timeout):
+def set_param(name, value, ros_args, textfile, timeout):
+    if not value and not textfile:
+        click.echo('Must specify either value or textfile')
+        sys.exit(1)
+
+    raw = False
+    if textfile:
+        with open(textfile, 'r') as f:
+            value = f.read()
+            raw = True
+
     srv = SRV_NS + '/set'
     rospy.wait_for_service(srv, timeout=timeout)
     try:
         srv_proxy = rospy.ServiceProxy(srv, Set)
-        srv_proxy(name, value)
+        srv_proxy(name, value, raw)
     except rospy.ServiceException, e:
         click.echo('Service call failed: {}'.format(e), err=True)
         sys.exit(1)

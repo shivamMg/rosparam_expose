@@ -6,8 +6,10 @@ if [ -z "$1" ]; then
 fi
 
 if [ -z "$2" ]; then
-  echo Need namespace
+  echo Need parameter name
   exit 1
 fi
 
-rosrun xacro xacro "$1" | rosrun rosparam_expose client load - "$2"
+tmpfile=$(mktemp)
+rosrun xacro xacro "$1" | tee $tmpfile >/dev/null
+rosrun rosparam_expose client set "$2" --textfile $tmpfile
