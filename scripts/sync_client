@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import re
 import sys
 import time
 
@@ -10,6 +11,8 @@ from rosparam_expose.srv import Get
 
 NODE_NAME = 'rosparam_expose_sync_client'
 SRV_NS = '/rosparam_expose'
+
+PARAM_NOT_SET_REGEX = re.compile(r'Parameter .+ is not set')
 
 
 @click.command()
@@ -31,7 +34,8 @@ def sync_client(param_names, interval, timeout):
             try:
                 response = srv_proxy(param_name)
             except rospy.ServiceException, e:
-                if str(e).endswith('is not set'):
+                if PARAM_NOT_SET_REGEX.search(str(e)):
+                    rospy.loginfo('{} not set at source. err: {}'.format(param_name, e))
                     continue
                 click.echo('Service call failed: {}'.format(e), err=True)
                 sys.exit(1)
