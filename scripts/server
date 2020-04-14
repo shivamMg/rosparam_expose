@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import os
+
 import rosparam
 import rospy
 import yaml
@@ -6,7 +8,7 @@ import yaml
 from rosparam_expose.srv import Set, Get, Load, Dump, Delete, List
 
 NODE_NAME = 'rosparam_expose'
-SRV_NS = '/rosparam_expose'
+SRV_NS = os.getenv('NS_PREFIX', '') + '/rosparam_expose'
 
 
 def set_handler(req):
@@ -58,7 +60,7 @@ def list_handler(req):
 
 
 if __name__ == '__main__':
-    rospy.init_node(NODE_NAME)
+    rospy.init_node(NODE_NAME, anonymous=True)
     rospy.Service(SRV_NS + '/set', Set, set_handler)
     rospy.Service(SRV_NS + '/get', Get, get_handler)
     rospy.Service(SRV_NS + '/load', Load, load_handler)
